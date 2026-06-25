@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
 import { api } from '../lib/api';
+import { PostIt, Doodle } from '../components/ui/Scatterbrain';
+import { cn } from '../components/ui/Scatterbrain';
 
 export default function AuthPage() {
   const router = useRouter();
@@ -49,12 +50,12 @@ export default function AuthPage() {
       localStorage.setItem('campusflow_token', token);
       localStorage.setItem('campusflow_user', JSON.stringify(user));
       
-      setSuccess('Logged in successfully! Redirecting...');
+      setSuccess('Logged in! Redirecting...');
       setTimeout(() => {
         router.push('/dashboard');
       }, 1000);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to sign in. Please check your credentials.');
+      setError(err.response?.data?.error || 'Failed to sign in.');
     } finally {
       setLoading(false);
     }
@@ -66,7 +67,6 @@ export default function AuthPage() {
     setSuccess('');
     setLoading(true);
 
-    // Parse subjects into array
     const subjects = subjectsText
       .split(',')
       .map((s) => s.trim())
@@ -89,276 +89,216 @@ export default function AuthPage() {
         password: registerPassword,
       });
 
-      setSuccess('Registration successful! Please sign in with your credentials.');
-      // Switch to login tab and prefill email
+      setSuccess('Registration successful!');
       setTimeout(() => {
         setLoginEmail(registerEmail);
         setIsLogin(true);
         setSuccess('');
       }, 2000);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Registration failed. Please check the inputs.');
+      setError(err.response?.data?.error || 'Registration failed.');
     } finally {
       setLoading(false);
     }
   };
 
+  const InputLabel = ({ children }: { children: React.ReactNode }) => (
+    <label className="block text-sm font-semibold mb-1 uppercase tracking-widest font-caveat text-ink-light">
+      {children}
+    </label>
+  );
+
+  const baseInputClass = "w-full bg-white/40 border-2 border-ink p-2 focus:outline-none focus:bg-white transition-colors text-ink placeholder-ink-light/50";
+
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-[#090b11] overflow-hidden text-white font-sans selection:bg-purple-500 selection:text-white">
-      {/* Dynamic Animated Background Blobs */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-br from-indigo-600/30 to-purple-600/30 blur-[120px] animate-pulse pointer-events-none" style={{ animationDuration: '8s' }}></div>
-      <div className="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-br from-purple-600/30 to-pink-600/30 blur-[120px] animate-pulse pointer-events-none" style={{ animationDuration: '12s' }}></div>
-      
-      <div className="relative w-full max-w-lg p-1 px-4 sm:px-6">
-        {/* Branding header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center p-3 mb-3 bg-purple-500/10 rounded-2xl border border-purple-500/20 backdrop-blur-md shadow-[0_0_20px_rgba(168,85,247,0.15)]">
-            <svg className="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
-          <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent drop-shadow-sm">
-            CampusFlow
-          </h1>
-          <p className="text-gray-400 text-sm mt-2 font-light">
-            AI-Powered Academic Organizer & Study Hub
-          </p>
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <Doodle type="circle" className="top-10 left-10 w-32 h-32" />
+      <Doodle type="x" className="bottom-10 right-10 w-16 h-16" />
+
+      <PostIt color="yellow" pin tape rotation={-1} className="w-full max-w-lg z-10">
+        <div className="text-center mb-6">
+          <h1 className="font-shrikhand text-5xl mb-2">CampusFlow</h1>
+          <p className="font-caveat text-2xl rotate-3 inline-block">AI Study Hub</p>
         </div>
 
-        {/* Auth Box Container */}
-        <div className="bg-[#121624]/60 backdrop-blur-xl border border-white/5 rounded-3xl p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.4)] transition-all duration-300 hover:border-purple-500/20">
-          {/* Tab Selector */}
-          <div className="flex bg-[#090b11]/80 rounded-2xl p-1.5 mb-8 border border-white/5">
-            <button
-              onClick={() => { setIsLogin(true); setError(''); setSuccess(''); }}
-              className={`flex-1 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 ${
-                isLogin
-                  ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              Sign In
-            </button>
-            <button
-              onClick={() => { setIsLogin(false); setError(''); setSuccess(''); }}
-              className={`flex-1 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 ${
-                !isLogin
-                  ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              Create Account
-            </button>
+        {/* Tab Toggle */}
+        <div className="flex gap-4 mb-6 border-b-2 border-ink pb-4">
+          <button
+            onClick={() => { setIsLogin(true); setError(''); setSuccess(''); }}
+            className={cn(
+              "flex-1 font-shrikhand text-2xl transition-transform",
+              isLogin ? "scale-110 underline decoration-4 underline-offset-4" : "opacity-50 hover:opacity-100"
+            )}
+          >
+            Sign In
+          </button>
+          <button
+            onClick={() => { setIsLogin(false); setError(''); setSuccess(''); }}
+            className={cn(
+              "flex-1 font-shrikhand text-2xl transition-transform",
+              !isLogin ? "scale-110 underline decoration-4 underline-offset-4" : "opacity-50 hover:opacity-100"
+            )}
+          >
+            Register
+          </button>
+        </div>
+
+        {error && (
+          <div className="mb-4 font-caveat text-xl bg-pink p-3 border-2 border-ink -rotate-1">
+            Oops! {error}
           </div>
+        )}
+        {success && (
+          <div className="mb-4 font-caveat text-xl bg-green p-3 border-2 border-ink rotate-1">
+            Yay! {success}
+          </div>
+        )}
 
-          {/* Feedback Messages */}
-          {error && (
-            <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-200 text-sm flex items-start space-x-2 animate-shake">
-              <svg className="w-5 h-5 flex-shrink-0 text-red-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-              <span>{error}</span>
+        {isLogin ? (
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <InputLabel>Email Address</InputLabel>
+              <input
+                type="email"
+                required
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                className={baseInputClass}
+                placeholder="you@domain.com"
+              />
             </div>
-          )}
-
-          {success && (
-            <div className="mb-6 p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-200 text-sm flex items-start space-x-2">
-              <svg className="w-5 h-5 flex-shrink-0 text-green-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>{success}</span>
+            <div>
+              <InputLabel>Password</InputLabel>
+              <input
+                type="password"
+                required
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                className={baseInputClass}
+                placeholder="••••••••"
+              />
             </div>
-          )}
-
-          {/* Form Content */}
-          {isLogin ? (
-            <form onSubmit={handleLogin} className="space-y-6">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full mt-4 bg-ink text-white font-shrikhand text-2xl py-3 hover:scale-105 transition-transform"
+            >
+              {loading ? 'Verifying...' : 'Let me in!'}
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handleRegister} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 pointer-events-none">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.206" />
-                    </svg>
-                  </span>
-                  <input
-                    type="email"
-                    required
-                    value={loginEmail}
-                    onChange={(e) => setLoginEmail(e.target.value)}
-                    placeholder="you@domain.com"
-                    className="w-full bg-[#090b11]/60 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all text-sm"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 pointer-events-none">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                  </span>
-                  <input
-                    type="password"
-                    required
-                    value={loginPassword}
-                    onChange={(e) => setLoginPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full bg-[#090b11]/60 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all text-sm"
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="relative w-full py-3.5 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 active:scale-[0.98] transition-all rounded-xl font-semibold shadow-lg shadow-purple-600/30 text-sm flex items-center justify-center space-x-2 text-white disabled:opacity-50 disabled:pointer-events-none"
-              >
-                {loading ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    <span>Verifying details...</span>
-                  </>
-                ) : (
-                  <span>Access Account</span>
-                )}
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={handleRegister} className="space-y-5">
-              {/* Two column grid for name & branch */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Jane Doe"
-                    className="w-full bg-[#090b11]/60 border border-white/10 rounded-xl py-2.5 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                    Branch / Dept
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={branch}
-                    onChange={(e) => setBranch(e.target.value)}
-                    placeholder="Computer Science"
-                    className="w-full bg-[#090b11]/60 border border-white/10 rounded-xl py-2.5 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all text-sm"
-                  />
-                </div>
-              </div>
-
-              {/* Two column grid for year & phone */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                    Year of Study
-                  </label>
-                  <select
-                    value={year}
-                    onChange={(e) => setYear(e.target.value)}
-                    className="w-full bg-[#090b11]/60 border border-white/10 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all text-sm"
-                  >
-                    <option value="1">1st Year (Freshman)</option>
-                    <option value="2">2nd Year (Sophomore)</option>
-                    <option value="3">3rd Year (Junior)</option>
-                    <option value="4">4th Year (Senior)</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    required
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+1234567890"
-                    className="w-full bg-[#090b11]/60 border border-white/10 rounded-xl py-2.5 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all text-sm"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                  Subjects (Comma Separated)
-                </label>
-                <textarea
+                <InputLabel>Full Name</InputLabel>
+                <input
+                  type="text"
                   required
-                  rows={2}
-                  value={subjectsText}
-                  onChange={(e) => setSubjectsText(e.target.value)}
-                  placeholder="CS101, Calculus, Physics, Discrete Math"
-                  className="w-full bg-[#090b11]/60 border border-white/10 rounded-xl py-2.5 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all text-sm resize-none"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className={baseInputClass}
+                  placeholder="Jane Doe"
                 />
               </div>
-
               <div>
-                <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                  Email Address
-                </label>
+                <InputLabel>Branch</InputLabel>
+                <input
+                  type="text"
+                  required
+                  value={branch}
+                  onChange={(e) => setBranch(e.target.value)}
+                  className={baseInputClass}
+                  placeholder="CS"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <InputLabel>Year</InputLabel>
+                <select
+                  value={year}
+                  onChange={(e) => setYear(e.target.value)}
+                  className={baseInputClass}
+                >
+                  <option value="1">1st Year</option>
+                  <option value="2">2nd Year</option>
+                  <option value="3">3rd Year</option>
+                  <option value="4">4th Year</option>
+                </select>
+              </div>
+              <div>
+                <InputLabel>Phone</InputLabel>
+                <input
+                  type="tel"
+                  required
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className={baseInputClass}
+                  placeholder="+1234567890"
+                />
+              </div>
+            </div>
+
+            <div>
+              <InputLabel>Subjects (Comma Separated)</InputLabel>
+              <input
+                type="text"
+                required
+                value={subjectsText}
+                onChange={(e) => setSubjectsText(e.target.value)}
+                className={baseInputClass}
+                placeholder="CS101, Calculus..."
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <InputLabel>Email</InputLabel>
                 <input
                   type="email"
                   required
                   value={registerEmail}
                   onChange={(e) => setRegisterEmail(e.target.value)}
-                  placeholder="jane.doe@student.edu"
-                  className="w-full bg-[#090b11]/60 border border-white/10 rounded-xl py-2.5 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all text-sm"
+                  className={baseInputClass}
+                  placeholder="jane@student.edu"
                 />
               </div>
-
               <div>
-                <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                  Password
-                </label>
+                <InputLabel>Password</InputLabel>
                 <input
                   type="password"
                   required
                   value={registerPassword}
                   onChange={(e) => setRegisterPassword(e.target.value)}
-                  placeholder="Minimum 6 characters"
-                  className="w-full bg-[#090b11]/60 border border-white/10 rounded-xl py-2.5 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all text-sm"
+                  className={baseInputClass}
+                  placeholder="••••••••"
                 />
               </div>
+            </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="relative w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 active:scale-[0.98] transition-all rounded-xl font-semibold shadow-lg shadow-purple-600/30 text-sm flex items-center justify-center space-x-2 text-white disabled:opacity-50 disabled:pointer-events-none"
-              >
-                {loading ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    <span>Creating Profile...</span>
-                  </>
-                ) : (
-                  <span>Register Profile</span>
-                )}
-              </button>
-            </form>
-          )}
-        </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full mt-4 bg-ink text-white font-shrikhand text-2xl py-3 hover:scale-105 transition-transform"
+            >
+              {loading ? 'Creating...' : 'Sign Me Up!'}
+            </button>
+          </form>
+        )}
+      </PostIt>
+      
+      {/* Decorative side notes */}
+      <div className="absolute top-20 right-[15%] hidden md:block">
+        <PostIt color="blue" pin pinColor="blue" rotation={12} className="p-4 max-w-[200px]">
+          <p className="font-caveat text-xl">Sign in to organize your academic chaos! :)</p>
+        </PostIt>
+      </div>
+      
+      <div className="absolute bottom-20 left-[15%] hidden md:block">
+        <PostIt color="pink" pin pinColor="red" rotation={-8} className="p-4 max-w-[180px]">
+          <p className="font-caveat text-xl">Don't forget your deadlines!</p>
+        </PostIt>
       </div>
     </div>
   );
